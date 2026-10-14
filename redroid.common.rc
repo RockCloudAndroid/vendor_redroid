@@ -23,29 +23,11 @@ on early-init
     # inputflinger require this dir
     mkdir /dev/input
 
-    # disable codec2 by default, DMA Heap required
-    setprop debug.stagefright.ccodec 0
-
     # disable some verbose logs
     setprop log.tag.libprocessgroup F
 
     # assume GLES 3.2 supported
     setprop ro.opengles.version 196610
-
-# setup overlay data partition
-on early-init && property:ro.boot.use_redroid_overlayfs=1
-    trigger use_redroid_overlayfs
-
-
-on use_redroid_overlayfs
-    mkdir /data-diff/upper
-    rmdir /data-diff/work
-    mkdir /data-diff/work
-    mount overlay overlay /data lowerdir=/data-base,upperdir=/data-diff/upper,workdir=/data-diff/work
-
-
-on early-init && property:ro.boot.redroid_dpi=*
-    setprop ro.sf.lcd_density ${ro.boot.redroid_dpi}
 
 
 on property:ro.zygote=zygote64_32
@@ -79,11 +61,3 @@ on post-fs-data
 
     # no need to mount, and encryption not supported yet
     trigger nonencrypted
-
-    exec -- /vendor/bin/post-fs-data.redroid.sh
-
-
-on early-boot
-
-    # before HAL / SurfaceFlinger
-    exec -- /vendor/bin/gpu_config.sh
